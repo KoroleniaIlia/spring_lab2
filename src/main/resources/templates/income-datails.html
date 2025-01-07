@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/css/stylesheet.css">
+    <meta charset="UTF-8">
+    <title>Income</title>
+</head>
+<body>
+<section class="container-income">
+    <div class="card">
+        <form th:action="@{{id}/edit(id=${income.id})}" th:object="${income}" method="post">
+            <div class="input-container">
+                <label class="label" for="type">Категорія</label>
+                <input class="input" type="text" th:field="*{category}" id="type">
+            </div>
+            <div class="input-container">
+                <label class="label" for="amount">Сума</label>
+                <input class="input" type="number" th:field="*{amount}" id="amount">
+            </div>
+            <div class="input-container">
+                <label class="label" for="description">Опис</label>
+                <textarea rows="6" cols="20" class="textarea" th:field="*{description}" id="description"></textarea>
+            </div>
+            <div class="input-container">
+                <label class="label" for="date">Опис</label>
+                <input type="date" class="input" th:field="*{date}" id="date">
+            </div>
+            <div class="input-container">
+                <button type="submit" class="button">Зберегти</button>
+            </div>
+        </form>
+        <form th:action="@{{id}/delete(id=${income.id})}" method="post">
+            <button type="submit" class="button">Видалити</button>
+        </form>
+    </div>
+</section>
+</body>
+</html>

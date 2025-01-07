@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>New Expense</title>
+  <link rel="stylesheet" href="/css/stylesheet.css">
+</head>
+<body>
+<section class="container-income">
+  <div class="card">
+    <form th:action="@{/user/{id}/expense/new/create(id=${user.id})}" th:object="${expense}" method="post">
+      <div class="input-container">
+        <label class="label" for="type">Категорія</label>
+        <input class="input" type="text" id="type" th:field="*{category}">
+      </div>
+      <div class="input-container">
+        <label class="label" for="amount">Сума</label>
+        <input class="input" type="number" id="amount" th:field="*{amount}">
+      </div>
+      <div class="input-container">
+        <label class="label" for="description">Опис</label>
+        <textarea class="textarea" id="description" rows="6" cols="20" th:field="*{description}"></textarea>
+      </div>
+      <div class="input-container">
+        <label class="label" for="date">Дата</label>
+        <input class="input" type="date" id="date" th:field="*{date}">
+      </div>
+      <div class="input-container">
+        <button class="button" type="submit">Створити</button>
+      </div>
+    </form>
+  </div>
+</section>
+</body>
+</html>

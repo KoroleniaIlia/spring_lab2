@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/stylesheet.css">
+    <title>Yours budget</title>
+</head>
+<body>
+<div class="container">
+    <h1>Users:</h1>
+    <a th:href="@{'/user/' + ${user.id}}" class="card-link" th:each="user:${users}">
+        <h1 th:text="${user.name}"></h1>
+        <h2 th:text="${user.budget}"></h2>
+    </a>
+</div>
+</body>
+</html>

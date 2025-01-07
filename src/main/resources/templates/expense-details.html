@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Expense</title>
+    <link rel="stylesheet" href="/css/stylesheet.css">
+</head>
+<body>
+<section class="container-income">
+    <div class="card">
+        <form th:action="@{/expense/{id}/edit(id=${expense.id})}" th:object="${expense}" method="post">
+            <div class="input-container">
+                <label class="label" for="category">Категорія</label>
+                <input class="input" type="text" id="category" th:field="*{category}" placeholder="Введіть категорію">
+            </div>
+            <div class="input-container">
+                <label class="label" for="amount">Сума</label>
+                <input class="input" type="number" id="amount" th:field="*{amount}" placeholder="Введіть суму">
+            </div>
+            <div class="input-container">
+                <label class="label" for="description">Опис</label>
+                <textarea class="textarea" id="description" rows="6" cols="20" th:field="*{description}" placeholder="Введіть опис"></textarea>
+            </div>
+            <div class="input-container">
+                <label class="label" for="date">Дата</label>
+                <input class="input" type="date" id="date" th:field="*{date}">
+            </div>
+            <div class="input-container">
+                <button class="button" type="submit">Зберегти</button>
+            </div>
+        </form>
+        <form th:action="@{/expense/{id}/delete(id=${expense.id})}" method="post">
+            <div class="input-container">
+                <button class="button" type="submit">Видалити</button>
+            </div>
+        </form>
+    </div>
+</section>
+</body>
+</html>

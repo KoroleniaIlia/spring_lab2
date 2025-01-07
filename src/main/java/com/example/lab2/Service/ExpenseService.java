@@ -13,5 +13,5 @@ public interface ExpenseService {
 
     String delete(Integer id);
 
-    Iterable<ExpenseEntity> findByUserID(Integer userId);
+    Iterable<ExpenseEntity> findByUserId(Integer userId);
 }

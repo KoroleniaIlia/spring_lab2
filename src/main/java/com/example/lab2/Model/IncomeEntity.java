@@ -17,9 +17,8 @@ public class IncomeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private Integer userId;
+    private String category;
     private Double amount;
     private String description;
     private Date date;
