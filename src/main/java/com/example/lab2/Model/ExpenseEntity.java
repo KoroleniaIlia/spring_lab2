@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Date;
+
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -20,4 +24,6 @@ public class ExpenseEntity {
     private Double amount;
     private String description;
     private String category;
+    private Date date;
+
 }
