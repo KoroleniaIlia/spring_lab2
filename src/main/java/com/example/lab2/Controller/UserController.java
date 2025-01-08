@@ -3,7 +3,6 @@ package com.example.lab2.Controller;
 import com.example.lab2.Model.ExpenseEntity;
 import com.example.lab2.Model.IncomeEntity;
 import com.example.lab2.Model.UserEntity;
-import com.example.lab2.Repository.UserRepository;
 import com.example.lab2.Service.ExpenseService;
 import com.example.lab2.Service.IncomeService;
 import com.example.lab2.Service.UserService;
@@ -12,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Date;
+import java.util.Calendar;
 
 @Controller
 @RequestMapping("/user")
@@ -29,52 +31,31 @@ public class UserController {
         return "users";
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addUser() {
-        UserEntity user = new UserEntity()
-                .builder()
-                .name("Illia")
-                .budget(0.0)
-                .build();
-        UserEntity savedUser = userService.save(user);
-        if (savedUser != null) {
-            return ResponseEntity.ok(savedUser.getName());
-        } else {
-            return ResponseEntity.ok("error");
-        }
-    }
+
 
     @GetMapping("/{id}")
-    public String getUserById(@PathVariable Integer id, Model model) {
+    public String getUserById(@PathVariable Integer id, Model model,
+                              @RequestParam(required = false) Date startDate,
+                              @RequestParam(required = false) Date endDate) {
         userService.findById(id).ifPresent(user -> {
             model.addAttribute("user", user);
         });
-        model.addAttribute("incomes", incomeService.findByUserId(id));
-        model.addAttribute("expenses", expenseService.findByUserId(id));
+        if (startDate == null || endDate == null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            startDate = new Date(calendar.getTimeInMillis());
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+            endDate = new Date(calendar.getTimeInMillis());
+        }
+        model.addAttribute("incomeForThisTime", incomeService.findByUserIdAndDateRange(id, startDate, endDate).stream().mapToDouble(IncomeEntity::getAmount).sum());
+        model.addAttribute("expenseForThisTime", expenseService.findByUserIdAndDateRange(id, startDate, endDate).stream().mapToDouble(ExpenseEntity::getAmount).sum());
+        model.addAttribute("incomes", incomeService.findByUserIdAndDateRange(id, startDate, endDate));
+        model.addAttribute("expenses", expenseService.findByUserIdAndDateRange(id, startDate, endDate));
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
         return "user-details";
     }
 
-    @PutMapping("/edit/{id}")
-    public ResponseEntity<?> updateUser(@RequestBody UserEntity user, @PathVariable Integer id) {
-        userService.findById(id)
-                .map(oldUser -> {
-                    oldUser.setName(user.getName());
-                    oldUser.setBudget(user.getBudget());
-                    userService.save(oldUser);
-                    return null;
-                });
-        return ResponseEntity.ok("user is saved");
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
-        return ResponseEntity.ok(userService.deleteById(id));
-    }
-
-    @GetMapping("/{id}/income/all")
-    public ResponseEntity<?> getIncome(@PathVariable Integer id) {
-        return ResponseEntity.ok(incomeService.findByUserId(id));
-    }
 
     @GetMapping("/{id}/expense/new")
     public String newExpense(@PathVariable Integer id, Model model, @ModelAttribute ExpenseEntity expense) {
@@ -120,5 +101,39 @@ public class UserController {
                 .build();
         incomeService.save(savedIncome);
         return "redirect:/user/" + id;
+    }
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<?> updateUser(@RequestBody UserEntity user, @PathVariable Integer id) {
+        userService.findById(id)
+                .map(oldUser -> {
+                    oldUser.setName(user.getName());
+                    oldUser.setBudget(user.getBudget());
+                    userService.save(oldUser);
+                    return null;
+                });
+        return ResponseEntity.ok("user is saved");
+    }
+    @GetMapping("/getAll")
+    public ResponseEntity<?> getUsers() {
+        return ResponseEntity.ok(userService.findAll());
+    }
+    @PostMapping("/add")
+    public ResponseEntity<?> addUser(@RequestBody UserEntity user) {
+        UserEntity newUser = new UserEntity()
+                .builder()
+                .name(user.getName())
+                .budget(user.getBudget())
+                .build();
+        UserEntity savedUser = userService.save(newUser);
+        return ResponseEntity.ok(savedUser);
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+        return ResponseEntity.ok(userService.deleteById(id));
+    }
+    @GetMapping("/{id}/income/all")
+    public ResponseEntity<?> getIncome(@PathVariable Integer id) {
+        return ResponseEntity.ok(incomeService.findByUserId(id));
     }
 }

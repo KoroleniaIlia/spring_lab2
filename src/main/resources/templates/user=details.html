@@ -8,9 +8,10 @@
 <body>
 <section class="container">
   <h1 th:text="${user.name}"></h1>
+  <h2>Загальний баланс: <span th:text="${user.budget}"></span> грн</h2>
   <div class="container-row">
     <div class="container">
-      <h2><a class="a-text" th:href="@{/user/{id}/income/new(id=${user.id})}">Надходження</a></h2>
+      <h2><a class="a-text" th:href="@{/user/{id}/income/new(id=${user.id})}">Надходження: </a><span style="color: green" th:text="${incomeForThisTime}"></span> грн</h2>
       <div class="card" th:each="income:${incomes}">
         <h3>Категорія: <span th:text="${income.category}"></span></h3>
         <h3>Cума: <span class="card-text" th:text="${income.amount}"></span></h3>
@@ -23,7 +24,7 @@
       </div>
     </div>
     <div class="container">
-      <h2><a class="a-text" th:href="@{/user/{id}/expense/new(id=${user.id})}">Витрати</a></h2>
+      <h2><a class="a-text" th:href="@{/user/{id}/expense/new(id=${user.id})}">Витрати: </a><span style="color: darkred" th:text="${expenseForThisTime}"></span>  грн</h2>
       <div class="card" th:each="expense:${expenses}">
         <h3>Категорія: <span th:text="${expense.category}"></span></h3>
         <h3>Cума: <span class="card-text" th:text="${expense.amount}"></span></h3>
