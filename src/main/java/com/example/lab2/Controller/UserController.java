@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.util.Calendar;
+import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -32,14 +33,14 @@ public class UserController {
     }
 
 
-
     @GetMapping("/{id}")
     public String getUserById(@PathVariable Integer id, Model model,
                               @RequestParam(required = false) Date startDate,
-                              @RequestParam(required = false) Date endDate) {
-        userService.findById(id).ifPresent(user -> {
-            model.addAttribute("user", user);
-        });
+                              @RequestParam(required = false) Date endDate,
+                              @RequestParam(required = false) Boolean sort) {
+        if (sort == null) {
+            sort = false;
+        }
         if (startDate == null || endDate == null) {
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -47,23 +48,26 @@ public class UserController {
             calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
             endDate = new Date(calendar.getTimeInMillis());
         }
-        model.addAttribute("incomeForThisTime", incomeService.findByUserIdAndDateRange(id, startDate, endDate).stream().mapToDouble(IncomeEntity::getAmount).sum());
-        model.addAttribute("expenseForThisTime", expenseService.findByUserIdAndDateRange(id, startDate, endDate).stream().mapToDouble(ExpenseEntity::getAmount).sum());
-        model.addAttribute("incomes", incomeService.findByUserIdAndDateRange(id, startDate, endDate));
-        model.addAttribute("expenses", expenseService.findByUserIdAndDateRange(id, startDate, endDate));
-        model.addAttribute("startDate", startDate);
-        model.addAttribute("endDate", endDate);
-        return "user-details";
-    }
 
 
-    @GetMapping("/{id}/expense/new")
-    public String newExpense(@PathVariable Integer id, Model model, @ModelAttribute ExpenseEntity expense) {
-        model.addAttribute("expense", expense);
+        List<IncomeEntity> incomes = sort
+                ? incomeService.sortByCategory(incomeService.findByUserIdAndDateRange(id, startDate, endDate))
+                : incomeService.findByUserIdAndDateRange(id, startDate, endDate);
+        List<ExpenseEntity> expenses = sort
+                ? expenseService.sortByCategory(expenseService.findByUserIdAndDateRange(id, startDate, endDate))
+                : expenseService.findByUserIdAndDateRange(id, startDate, endDate);
         userService.findById(id).ifPresent(user -> {
             model.addAttribute("user", user);
+            model.addAttribute("balanceStatus", userService.balanceStatus(user.getBudget()));
         });
-        return "create-expense";
+        model.addAttribute("incomeForThisTime", incomeService.totalSum(incomes));
+        model.addAttribute("expenseForThisTime", expenseService.totalSum(expenses));
+        model.addAttribute("incomes", incomes);
+        model.addAttribute("expenses", expenses);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("sort", sort);
+        return "user-details";
     }
 
     @PostMapping("/{id}/expense/new/create")
@@ -87,6 +91,15 @@ public class UserController {
             model.addAttribute("user", user);
         });
         return "create-income";
+    }
+
+    @GetMapping("/{id}/expense/new")
+    public String newExpense(@PathVariable Integer id, Model model, @ModelAttribute ExpenseEntity expense) {
+        model.addAttribute("expense", expense);
+        userService.findById(id).ifPresent(user -> {
+            model.addAttribute("user", user);
+        });
+        return "create-expense";
     }
 
     @PostMapping("/{id}/income/new/create")
@@ -114,10 +127,12 @@ public class UserController {
                 });
         return ResponseEntity.ok("user is saved");
     }
+
     @GetMapping("/getAll")
     public ResponseEntity<?> getUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
+
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@RequestBody UserEntity user) {
         UserEntity newUser = new UserEntity()
@@ -128,10 +143,12 @@ public class UserController {
         UserEntity savedUser = userService.save(newUser);
         return ResponseEntity.ok(savedUser);
     }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
         return ResponseEntity.ok(userService.deleteById(id));
     }
+
     @GetMapping("/{id}/income/all")
     public ResponseEntity<?> getIncome(@PathVariable Integer id) {
         return ResponseEntity.ok(incomeService.findByUserId(id));

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/css/stylesheet.css">
+  <meta charset="UTF-8">
+  <title>Userinfo</title>
+</head>
+<body>
+<section class="container">
+  <h1 th:text="${user.name}"></h1>
+  <div th:switch="${balanceStatus}">
+    <h2 th:case="'zero'">
+      Загальний баланс: <span style="color: grey;" th:text="${user.budget ?: '0'}"></span> грн
+    </h2>
+    <h2 th:case="'positive'">
+      Загальний баланс: <span style="color: green;" th:text="${user.budget ?: '0'}"></span> грн
+    </h2>
+    <h2 th:case="'negative'">
+      Загальний баланс: <span style="color: red;" th:text="${user.budget ?: '0'}"></span> грн
+    </h2>
+  </div>
+  <div class="container-row">
+    <div class="container">
+      <h2><a class="a-text" th:href="@{/user/{id}/income/new(id=${user.id})}">Надходження: </a><span
+              style="color: green" th:text="${incomeForThisTime}"></span> грн</h2>
+      <div th:if="${incomes.size() == 0}">
+        <p>У вас немає надходжень за цей період.</p>
+      </div>
+      <div class="card" th:each="income:${incomes}">
+        <h3>Категорія: <span th:text="${income.category}"></span></h3>
+        <h3>Cума: <span class="card-text" th:text="${income.amount}"></span></h3>
+        <h3>Опис: </h3>
+        <p th:text="${income.description}"></p>
+        <p th:text="${#dates.format(income.date, 'dd-MM-yyyy')}"></p>
+        <a th:href="@{'/income/'+${income.id}}">
+          <button class="button">Змінити</button>
+        </a>
+      </div>
+    </div>
+    <div class="container">
+      <form th:action="@{/user/{id}(id=${user.id})}" method="get">
+        <div class="input-container">
+          <label for="startDate">Початкова дата</label>
+          <input type="date" id="startDate" name="startDate" th:value="${startDate}">
+        </div>
+        <div class="input-container">
+          <label for="endDate">Кінцева дата</label>
+          <input type="date" id="endDate" name="endDate" th:value="${endDate}">
+        </div>
+        <div>
+          <label for="sort">Сортувати за категорією</label>
+          <input type="checkbox" class="input-container" value="true" th:checked="${sort}" id="sort"
+                 name="sort" th:value="true">
+        </div>
+        <div class="input-container">
+          <button style="width: 100%" type="submit" class="button">Фільтрувати</button>
+        </div>
+      </form>
+    </div>
+    <div class="container">
+      <h2><a class="a-text" th:href="@{/user/{id}/expense/new(id=${user.id})}">Витрати: </a><span
+              style="color: darkred" th:text="${expenseForThisTime}"></span> грн</h2>
+      <div th:if="${expenses.size() == 0}">
+        <p>У вас немає витрат за цей період.</p>
+      </div>
+      <div class="card" th:each="expense:${expenses}">
+        <h3>Категорія: <span th:text="${expense.category}"></span></h3>
+        <h3>Cума: <span class="card-text" th:text="${expense.amount}"></span></h3>
+        <h3>Опис: </h3>
+        <p th:text="${expense.description}"></p>
+        <p th:text="${#dates.format(expense.date, 'dd-MM-yyyy')}"></p>
+        <a th:href="@{'/expense/'+${expense.id}}">
+          <button class="button">Змінити</button>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

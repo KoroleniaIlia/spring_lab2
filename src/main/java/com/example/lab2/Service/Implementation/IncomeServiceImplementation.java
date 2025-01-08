@@ -4,6 +4,8 @@ import com.example.lab2.Model.IncomeEntity;
 import com.example.lab2.Repository.IncomeRepository;
 import com.example.lab2.Service.IncomeService;
 import com.example.lab2.Service.UserService;
+import com.example.lab2.Sort.SortItemsByCategory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -13,17 +15,21 @@ import java.util.stream.Collectors;
 
 @Service
 public class IncomeServiceImplementation implements IncomeService {
-    private IncomeRepository incomeRepository;
-    private UserService userService;
+    private final IncomeRepository incomeRepository;
+    private final UserService userService;
+    private final SortItemsByCategory<IncomeEntity> categorySorter;
 
-    public IncomeServiceImplementation(IncomeRepository incomeRepository, UserService userService) {
+    public IncomeServiceImplementation(IncomeRepository incomeRepository, UserService userService, @Qualifier("sortIncomesByCategory")
+    SortItemsByCategory<IncomeEntity> categorySorter) {
         this.incomeRepository = incomeRepository;
         this.userService = userService;
+        this.categorySorter = categorySorter;
+
     }
 
     @Override
     public Iterable<IncomeEntity> findAll() {
-        return null;
+        return incomeRepository.findAll();
     }
 
     @Override
@@ -38,6 +44,8 @@ public class IncomeServiceImplementation implements IncomeService {
             userService.save(user);
             return null;
         });
+        income.setCategory(Character.toUpperCase(income.getCategory().charAt(0))
+                + income.getCategory().substring(1).toLowerCase());
         return incomeRepository.save(income);
     }
 
@@ -61,6 +69,11 @@ public class IncomeServiceImplementation implements IncomeService {
     }
 
     @Override
+    public Double totalSum(List<IncomeEntity> incomes) {
+        return incomes.stream().mapToDouble(IncomeEntity::getAmount).sum();
+    }
+
+    @Override
     public Iterable<IncomeEntity> findByUserId(Integer userId) {
         return incomeRepository.findByUserId(userId);
     }
@@ -71,5 +84,10 @@ public class IncomeServiceImplementation implements IncomeService {
                 .stream()
                 .sorted((income1, income2) -> income2.getDate().compareTo(income1.getDate()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IncomeEntity> sortByCategory(List<IncomeEntity> incomes) {
+        return categorySorter.sortByCategory(incomes);
     }
 }

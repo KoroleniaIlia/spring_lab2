@@ -4,6 +4,9 @@ import com.example.lab2.Model.ExpenseEntity;
 import com.example.lab2.Repository.ExpenseRepository;
 import com.example.lab2.Service.ExpenseService;
 import com.example.lab2.Service.UserService;
+import com.example.lab2.Sort.SortItemsByCategory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -15,11 +18,22 @@ import java.util.stream.Collectors;
 public class ExpenseServiceImplementation implements ExpenseService {
     private ExpenseRepository expenseRepository;
     private UserService userService;
+    private SortItemsByCategory<ExpenseEntity> categorySorter;
 
-    public ExpenseServiceImplementation(ExpenseRepository expenseRepository, UserService userService) {
+
+    @Autowired
+    public void setExpenseRepository(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
-        this.userService = userService;
+    }
 
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    public void setCategorySorter(@Qualifier("sortExpensesByCategory") SortItemsByCategory<ExpenseEntity> categorySorter) {
+        this.categorySorter = categorySorter;
     }
 
     @Override
@@ -39,7 +53,19 @@ public class ExpenseServiceImplementation implements ExpenseService {
             userService.save(user);
             return null;
         });
+        expense.setCategory(Character.toUpperCase(expense.getCategory().charAt(0))
+                + expense.getCategory().substring(1).toLowerCase());
         return expenseRepository.save(expense);
+    }
+
+    @Override
+    public Double totalSum(List<ExpenseEntity> expenses) {
+        return expenses.stream().mapToDouble(ExpenseEntity::getAmount).sum();
+    }
+
+    @Override
+    public List<ExpenseEntity> sortByCategory(List<ExpenseEntity> expenses) {
+        return categorySorter.sortByCategory(expenses);
     }
 
     @Override

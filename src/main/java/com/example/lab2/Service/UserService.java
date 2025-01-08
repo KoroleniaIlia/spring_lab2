@@ -12,4 +12,7 @@ public interface UserService {
     Optional<UserEntity> findById(Integer id);
 
     String deleteById(Integer id);
+
+    String balanceStatus(Double balance);
+
 }

@@ -39,4 +39,15 @@ public class UserServiceImplementation implements UserService {
             return "User with id " + id + " wasn't deleted";
         }
     }
+
+    @Override
+    public String balanceStatus(Double balance) {
+        if (balance > 0) {
+            return "positive";
+        }
+        if (balance < 0) {
+            return "negative";
+        }
+        return "zero";
+    }
 }

@@ -8,6 +8,9 @@
 <body>
 <div class="container">
     <h1>Users:</h1>
+    <div th:if="${users.size() == 0}">
+        <h2>Тут поки що немає користувачів.</h2>
+    </div>
     <a th:href="@{'/user/' + ${user.id}}" class="card-link" th:each="user:${users}">
         <h1 th:text="${user.name}"></h1>
         <h2 th:text="${user.budget}"></h2>

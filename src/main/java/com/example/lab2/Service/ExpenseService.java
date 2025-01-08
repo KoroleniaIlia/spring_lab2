@@ -17,7 +17,11 @@ public interface ExpenseService {
 
     String delete(Integer id);
 
+    Double totalSum(List<ExpenseEntity> expenses);
+
     Iterable<ExpenseEntity> findByUserId(Integer userId);
+
+    List<ExpenseEntity> sortByCategory(List<ExpenseEntity> expenses);
 
     List<ExpenseEntity> findByUserIdAndDateRange(Integer userId, Date startDate, Date endDate);
 

@@ -15,9 +15,13 @@ public interface IncomeService {
 
     String delete(Integer id);
 
+    Double totalSum(List<IncomeEntity> incomes);
+
     void update(IncomeEntity income, Double oldAmount);
 
     Iterable<IncomeEntity> findByUserId(Integer userId);
+
+    List<IncomeEntity> sortByCategory(List<IncomeEntity> incomes);
 
     List<IncomeEntity> findByUserIdAndDateRange(Integer userId, Date startDate, Date endDate);
 
